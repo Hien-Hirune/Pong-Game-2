@@ -21,7 +21,10 @@ public:
 	void setLevel(int lvl) {
 		level = lvl;
 	}
-	bool processTouch(CPong& ball); //xử lí chạm bóng
+	void setLength(int l)
+	{
+		length = l;
+	}
 
 	void draw();
 	void erase();

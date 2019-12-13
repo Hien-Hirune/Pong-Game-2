@@ -24,38 +24,15 @@ int Brick::getLength()
 	return length;
 }
 
-bool Brick::processTouch(CPong& ball)
-{
-	//xét tung độ của bóng và gạch
-	if (ball.getCurY() == curCor.getY() ||
-		(ball.getCurY() == curCor.getY() - 1 && ball.getDir() == UPLEFT) ||
-		(ball.getCurY() == curCor.getY() - 1 && ball.getDir() == UPRIGHT) ||
-		(ball.getCurY() == curCor.getY() + 1 && ball.getDir() == DOWNLEFT) ||
-		(ball.getCurY() == curCor.getY() + 1 && ball.getDir() == DOWNRIGHT))
-	{ //xét hoành độ
-		if (ball.getCurX() < curCor.getX() - brickLength / 2 || ball.getCurX() > curCor.getX() + brickLength / 2)
-			return false;
-		erase(); //xóa gạch
-		level--;
-		if (level >= 1) //nếu vẫn còn level
-			draw(); //vẽ lại gạch với màu khác
-		//xét chuyển hướng cho bóng
-		if ((ball.getCurY() == curCor.getY() - 1)) //nếu bóng đang đi lên thì đổi hướng
-		{
-			ball.changDir((ball.getDir() == UPRIGHT) ? DOWNRIGHT : DOWNLEFT);
-		}
-		if ((ball.getCurY() == curCor.getY() + 1)) //nếu bóng đang đi xuống 
-		{
-			ball.changDir((ball.getDir() == DOWNRIGHT) ? UPRIGHT : UPLEFT);
-		}
-		return true;
-	}
-	return false;
-}
 
 void Brick::draw()
 {
-	gotoXY(curCor.getX(), curCor.getY());
+	setColor(0, 7);
+	gotoXY(curCor.getX() - brickLength / 2, curCor.getY());
+	if (level == 0)
+	{
+		setColor(0, 0);
+	}
 	if (level == 1)
 	{
 		setColor(0, 7);
@@ -68,7 +45,7 @@ void Brick::draw()
 	{
 		setColor(0, 2);
 	}
-	cout << "\xDC\xDC\xDC\xDC\xDC";
+	cout << "\xDF\xDF\xDF\xDF\xDF";
 	setColor(0, 7);
 }
 
@@ -76,7 +53,7 @@ void Brick::erase()
 {
 	for (int i = 0; i < length; i++)
 	{
-		gotoXY(curCor.getX() + i, curCor.getY());
+		gotoXY(curCor.getX() - length / 2 + i, curCor.getY());
 		cout << " ";
 	}
 }
