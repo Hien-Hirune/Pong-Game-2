@@ -52,6 +52,14 @@ void CBar::move(char movingKey) {
 				gotoXY(getCurX() - getLength() / 2, getCurY());
 				std::cout << barChar << barChar << barChar << barChar << barChar << barChar;
 			}
+			else if (getCurX() - barLength / 2 - 4 == 0)
+			{
+				gotoXY(getCurX() + getLength() / 2 - 2, getCurY());
+				std::cout << "   ";
+				curCor.setX(getCurX() - 3);
+				gotoXY(getCurX() - getLength() / 2, getCurY());
+				std::cout << barChar << barChar << barChar;
+			}
 		}
 		else {
 			if (RightCheck()) {
@@ -60,6 +68,14 @@ void CBar::move(char movingKey) {
 				moveRight();
 				gotoXY(getCurX() + getLength() / 2 - 5, getCurY());
 				std::cout << barChar << barChar << barChar << barChar << barChar << barChar;
+			}
+			else if (getCurX() + barLength / 2 + 4 == WIDTH - 1)
+			{
+				gotoXY(getCurX() - getLength() / 2 , getCurY());
+				std::cout << "   ";
+				curCor.setX(getCurX() + 3);
+				gotoXY(getCurX() + getLength() / 2 - 2, getCurY());
+				std::cout << barChar << barChar << barChar;
 			}
 		}
 }
