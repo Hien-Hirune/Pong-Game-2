@@ -10,6 +10,7 @@
 #include <ctime>
 #include <chrono>
 #include "BrickMatrix.h"
+#include "CListBonus.h"
 
 #define resetButton 'r'
 
@@ -17,12 +18,13 @@
 
 #define pauseGame 'p'
 
+#define resetLoop 'l'
 
-#define WIDTH 62
+#define WIDTH 61
 #define HEIGHT 30
 
 
-#define barLength 13
+#define barLength 17
 
 #define speedRange 3
 #define defaultSpeed 50
@@ -32,6 +34,7 @@
 class CGame
 {
 private:
+	CListBonus bonus;
 	CPong pong;
 	CBar playerOne;
 	bool quit;

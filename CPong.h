@@ -18,6 +18,7 @@ private:
 
 public:
 	void reset(); // khoi tao vi tri ban dau
+	void outLoop();
 	void changDir(dir newDir); // thay doi huong di cua banh
 	void Move(); // banh di chuyen
 	void initial(); // khoi tao

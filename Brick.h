@@ -14,11 +14,11 @@ public:
 	int getY();
 	int getLevel();
 	int getLength();
-	void setCur(int x, int y) {
+	void setCur(int x, int y) {		
 		curCor.setX(x);
 		curCor.setY(y);
 	}
-	void setLevel(int lvl) {
+	void setLevel(int lvl) {		
 		level = lvl;
 	}
 	void setLength(int l)
@@ -28,6 +28,7 @@ public:
 
 	void draw();
 	void erase();
+	void afterTouch();
 
 	Brick(int, int, int);
 	Brick();

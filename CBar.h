@@ -10,8 +10,8 @@
 
 #define playerOneLeftControl KEY_LEFT
 #define playerOneRightControl KEY_RIGHT
-#define barLength 13
-#define WIDTH 62
+#define barLength 17
+#define WIDTH 61
 #define HEIGHT 30
 
 #define barChar '\xDB'
@@ -28,8 +28,8 @@ public:
 	void move(char); // di chuyen
 	void reset(); // khoi tao lai
 	void initial(int,int); // khoi tao
-	bool LeftCheck(); // check o tren
-	bool RightCheck(); // check o duoi
+	bool LeftCheck(); // check ben trai
+	bool RightCheck(); // check ben phai
 
 	int getCurX() {
 		return curCor.getX();

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CGame.h"
 
 // Ham + diem moi khi banh cham vach va reset lai banh va speed
@@ -22,6 +22,7 @@ void CGame::changeSpeed()
 }
 
 void CGame::logic() {
+	vector<CBonus> tmp;
 	// bar 1
 	if (pong.getCurY() + 1 == playerOne.getCurY())
 	{	// xet x cua banh neu nhu chuan bi cham vao thanh choi thi chay for de vet y cua thanh choi so voi y cua banh
@@ -33,21 +34,35 @@ void CGame::logic() {
 					pong.setDir(UPLEFT);
 				else if (pong.getDir() == DOWNRIGHT)
 					pong.setDir(UPRIGHT);
+				else 
+					pong.setDir((dir)(rand() % 3 + 1));
 				drawBar(playerOne.getCurX(), playerOne.getCurY());
-				//changeSpeed(); // thay doi speed neu nhu cham vao thanh choi
+				changeSpeed(); // thay doi speed neu nhu cham vao thanh choi
 			}
 		}
+		if (pong.getCurX() == playerOne.getCurX() - barLength / 2 - 1)
+		{
+			pong.changDir(UPLEFT);
+			drawBar(playerOne.getCurX(), playerOne.getCurY());
+		}
+		if (pong.getCurX() == playerOne.getCurX() + barLength / 2 + 1)
+		{
+			pong.changDir(UPRIGHT);
+			drawBar(playerOne.getCurX(), playerOne.getCurY());
+		}
 	}
-	
-	Mat.processTouch(pong,playerOneScore);
+
+	tmp = bonus.getList();
+	Mat.processTouch(pong, playerOneScore, tmp);
+	bonus.setList(tmp);
 
 	// neu dung vao thanh tren thi bat lai theo vat li
 	if (pong.getCurY() - 1 <= 2) {
 		pong.changDir((pong.getDir() == UPRIGHT) ? DOWNRIGHT : DOWNLEFT);
 	}
 	// thanh duoi
-	if (pong.getCurY() + 1 == HEIGHT - 1) {
-		pong.changDir((pong.getDir() == DOWNRIGHT) ? UPRIGHT : UPLEFT);
+	if (pong.getCurY() + 1 == HEIGHT - 1) {								//Sửa điều kiện thắng thua
+		pong.changDir((pong.getDir() == DOWNRIGHT) ? UPRIGHT : UPLEFT);	//Chỗ này bóng đập cạnh dưới
 	}
 	// thanh trai
 	if (pong.getCurX() - 1 <= 2) {
@@ -61,9 +76,7 @@ void CGame::logic() {
 
 // khoi tao game
 void CGame::initial() {
-	Mat.setCol(12);
-	Mat.setRow(3);
-	Mat.initialBrickRandom();
+	Mat.initLv1();
 	Mat.drawBricks();
 	drawBoard(); // ve ban choi
 	drawBar(WIDTH / 2, HEIGHT - 2); // ve thanh choi
@@ -76,7 +89,7 @@ void CGame::initial() {
 // hien thi diem tren man hinh
 void CGame::displayScore() {
 	gotoXY(WIDTH/4 - 10, HEIGHT);
-	std::cout << "Player One Score: " << playerOneScore << std::endl;
+	std::cout << "Player One Score: " << playerOneScore << "        " << std::endl;
 }
 
 // Tiep tuc choi khi pause
@@ -94,7 +107,7 @@ void CGame::unPause() {
 
 //ham dieu khien bot
 void CGame::botPlayerMove() {
-		if (pong.getCurY() > HEIGHT / 2 && pong.getDir() >= 4) {
+		if (pong.getCurY() > HEIGHT / 3 && pong.getDir() >= 4) {
 			if (playerOne.getCurX() - barLength / 2 > pong.getCurX()) {
 				playerOne.move(playerOneLeftControl);
 			}
@@ -136,6 +149,10 @@ void CGame::run(int choice) {
 		if (_kbhit()) { // neu co nhan input tu ban phim 
 			key = _getch(); // lay phim
 			switch (key) {
+			case resetLoop:
+				pong.outLoop();
+				playerOneScore -= 200;
+				break;
 			case pauseGame:
 				if (pause(choice)) {
 					exit(0);
@@ -218,6 +235,10 @@ void CGame::run(int choice) {
 		pong.Move();
 		// ve banh
 		pong.draw(pongChar);
+		bonus.Erase();
+		bonus.logic(playerOne, playerOneScore, Mat, speed);
+		bonus.Move();
+		bonus.draw();
 		// ham speed de thay doi toc do banh 
 		Sleep(speed);
 	}

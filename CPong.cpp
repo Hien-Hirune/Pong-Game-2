@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CPong.h"
 
-#define WIDTH 62
+#define WIDTH 61
 #define HEIGHT 30
 
 // tra ve vi tri ban dau
@@ -9,6 +9,15 @@ void CPong::reset() {
 	curCor.setX(WIDTH/2-1);
 	curCor.setY(HEIGHT/2-1);
 	direction = STOP;
+}
+
+void CPong::outLoop()
+{
+	draw(delChar);
+	curCor.setX(WIDTH / 2 - 1);
+	curCor.setY(HEIGHT / 2 - 1);
+	draw(pongChar);
+	direction = DOWN;
 }
 
 // doi huong di chuyen

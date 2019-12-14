@@ -1,20 +1,20 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CDraw.h"
 
-#define D 4					// khoang cach giua cac o chon
+#define D 3					// khoang cach giua cac o chon
 #define xStart 40			// vi tri x dau tien
 #define firstMenuY 5
 #define secondMenuY 3
 #define yStart 5			// vi tri y dau tien
-#define bColor 4			// màu bg ban đầu là màu đỏ
+#define bColor 4			// mau ban dau
 #define smallBox 40 			// do dai cua cac o lua chon
-#define	fontColor 15			// màu chữ trắng
+#define	fontColor 7			// mau chu
 #define WIDTH 61
 #define HEIGHT 30
 
 #define loadGame 10
 
-#define barLength 7
+#define barLength 17
 #define barChar '\xDB'
 
 int theColor[9] = { 10,11,12,13,14,6,5,9 };
@@ -63,22 +63,22 @@ void drawRect(int x, int y, int width, int height, int BG, int textColor)	//Ve h
 	setColor(0, fontColor);
 }
 
-void drawSelection(int x, int y, std::vector <std::string> menu, int cur, int BG) // vẽ ô lựa chọn menu[cur] với màu nền BG
+void drawSelection(int x, int y, std::vector <std::string> menu, int cur, int DesColor) // ve cac o lua chon
 {
-	drawRect(x, y, smallBox, 3, BG, fontColor); // ve hcn
-	int pos = menu[cur].length() / 2; // tính vị trí chính giữa của chữ 
-	gotoXY(x + (smallBox / 2 - pos), y + 1); // căn giữa hcn
-	setColor(BG, fontColor); // doi mau sang mau khac khi con nguoi dung tro toi
+	drawRect(x, y, smallBox, 2, DesColor, 2); // ve hcn
+	int pos = menu[cur].length() / 2; // tinh vi tri
+	gotoXY(x + (smallBox / 2 - pos), y); // can giua hinh chu nhat
+	setColor(DesColor, fontColor); // doi mau sang mau khac khi con nguoi dung tro toi
 	std::cout << menu[cur];			   // in ra chu trong o lua chon
 	setColor(0, fontColor);			// tra ve mau ban dau 
 }
 
 int drawPause() 
 {
-	int x = xStart, y = yStart + 3;
+	int x = xStart, y = yStart + secondMenuY;
 	std::vector <std::string> selection;
 	selection.push_back("CONTINUE\0");
-	selection.push_back("SAVE GAME & EXIT\0");
+	selection.push_back("SAVE & EXIT!");
 	
 	drawSelection(x, y, selection,0, 6);          // ve ra 2 cai o trong selection 2
 	drawSelection(x, y + D, selection, 1, bColor);
@@ -117,26 +117,66 @@ int drawPause()
 	setColor(0, fontColor); // set lai mau ban dau
 }
 
-bool drawMenu2(std::vector <std::string> selection)
+bool drawMenu2(std::vector <std::string> selection, int n, int &order)
 {
 	HideCursor();
+	int distance = 5;
 	char c;
-	//int cur = 3;	// vi tri cua text trong selection
-	int x = xStart, y = yStart + 3;
-	drawSelection(x, y, selection, 5, bColor);
-	drawSelection(x, y + D, selection, 6, bColor);
-	drawSelection(x, y + D * 2, selection, 4, 9);  // vẽ lựa chọn trong menu 2
+	int cur = 3;									// vi tri cua text trong selection
+	int x = xStart, y = yStart + secondMenuY;
+	drawSelection(x, y, selection, 3, 6);          // ve ra 2 cai o trong selection 2
+	drawSelection(x, y + D, selection, 4, bColor);
+	drawSelection(x, y + D * 2, selection, 5, bColor);
+
 	while (1)
 	{
 		c = getch();  // nhan vao lua chon cua nguoi dung
-		if (c == 13) //nếu nhấn enter
+		if (c == 72 && cur != 3)  // mui ten di len
 		{
-			system("CLS");
-			return true;
+			drawSelection(x, y - D, selection, cur - 1, 6); // ve hcn o tren mau khac
+			drawSelection(x, y, selection, cur, bColor);		// ve hinh chu nhat o duoi mau ban dau
+			y -= D;									// di chuyen con tro len tren
+			gotoXY(x, y);
+			cur -= 1;
+
+		}
+		else if (c == 80 && cur != n)
+		{
+			drawSelection(x, y + D, selection, cur + 1, 6); // ve hcn o duoi mau khac
+			drawSelection(x, y, selection, cur, bColor);// ve hinh chu nhat o tren mau ban dau
+			y += D;									// di chuyen con tro xuong duoi
+			gotoXY(x, y);
+			cur += 1;
+		}
+		else if (c == 13)
+		{
+			if (cur == 5) // neu con tro o o Back thi quay lai selection 1
+			{
+				system("CLS");
+				return true;
+			}
+			else if (cur == 4) {
+				order = 2;
+				return 1;
+			}
+			else if (cur == 3) {
+				order = 1;
+				return 1;
+			}
 		}
 	}
 	setColor(0, fontColor); // set lai mau ban dau
 }
+// ve thanh o giua ban choi 
+void drawMiddleLine() {
+	for (int i = 1; i < HEIGHT / 2 - 1; i++) {
+		if (i*2 != HEIGHT / 2 - 1) {
+			gotoXY(WIDTH / 2 - 1, i * 2);
+			std::cout << "\xDD";
+		}
+	}
+}
+// ve ban` choi 
 void drawBoard() 
 {
 	drawRect(0, 0, WIDTH, 1, bColor, fontColor);
@@ -150,153 +190,102 @@ void drawBar(int x, int y)
 {
 	for (int i = 0; i < barLength; i++) 
 	{
-		gotoXY(x, y - barLength/2 + i);
+		gotoXY(x - barLength / 2 + i, y);
 		std::cout << barChar;
 	}
 }
 
 // ve bang hien thi nguoi thang cuoc
-void drawWinner(int& level) 
-{
-	HideCursor();
-	int x = xStart, y = yStart + 4;
+void drawWinner(int player) {
+	int x = xStart, y = yStart + 9;
 	std::vector <std::string> selection;
-	if (level == 5) //nếu chơi đến max level rồi thì không có continue game nữa
-	{
-		selection.push_back("YOU WIN!!!");
-		selection.push_back("RESTART GAME\0");
+	if (player == 1) {
+		selection.push_back("Player One Win !!!");
 	}
-	else
-	{
-		selection.push_back("LEVEL UP!!!");
-		selection.push_back("CONTINUE GAME\0");
+	else {
+		selection.push_back("Player Two Win !!!");
 	}
-	selection.push_back("SAVE GAME & EXIT\0");
+	drawSelection(x, y, selection, 0, RED);
 
-	//vẽ ô lựa chọn
-	drawSelection(x, y, selection, 0, bColor);
-	drawSelection(x, y + D, selection, 1, 6); //set ô lựa chọn đầu 
-	drawSelection(x, y + D * 2, selection, 2, bColor);
+}
 
-	int cur = 1;
+// ve menu dau tien
+int drawMenu(int &order) {
+	HideCursor();
+	std::vector <std::string> selection;
+	selection.resize(8);
+	selection[0] = "START GAME\0";
+	selection[1] = "LOAD GAME\0";
+	selection[2] = "EXIT\0";
+	selection[3] = "1 PLAYER\0";
+	selection[4] = "2 PLAYER\0";
+	selection[5] = "BACK\0";
+	
+	int n = selection.size() - 1;
+	int distance = 5;
 	char c;
-	y += D;
+	int cur = 0;
+	int x = xStart, y = yStart + firstMenuY;
+
+	// ve cac o lua chon ban dau
+	drawSelection(x, y, selection, 0, bColor);
+	drawSelection(x, y + D, selection, 1, bColor);
+	drawSelection(x, y + D * 2, selection, 2, bColor);
+	drawSelection(x, y, selection, 0, 6);
 	while (1)
 	{
-		c = getch();  // nhan vao lua chon cua nguoi dung
-		if (c == 72 && cur != 1)  // nếu gặp mũi tên đi lên và chưa chạm ô đầu tiên
+		c = getch();    // nhan vao lua chon cua nguoi dung
+		if (c == 72 && cur != 0)  // mui ten di len
 		{
-			drawSelection(x, y - D, selection, cur - 1, 6); // ve hcn o tren mau khac
-			drawSelection(x, y, selection, cur, bColor);		// ve hinh chu nhat o duoi mau ban dau
-			y -= D;									// di chuyen con tro len tren
+			drawSelection(x, y - D, selection, cur - 1, 6);  // ve hcn o tren mau khac
+			drawSelection(x, y, selection, cur, bColor);		// ve hcn o duoi mau ban dau
+			y -= D;										// di chuyen con tro toi vi tri tiep theo
 			gotoXY(x, y);
 			cur -= 1;
+
 		}
-		else if (c == 80 && cur != 2) // nếu gặp mũi tên đi xuống và chưa chạm ô cuối cùng
+		else if (c == 80 && cur != 2)	// mui ten xuong
 		{
 			drawSelection(x, y + D, selection, cur + 1, 6); // ve hcn o duoi mau khac
-			drawSelection(x, y, selection, cur, bColor);// ve hinh chu nhat o tren mau ban dau
-			y += D;									// di chuyen con tro xuong duoi
+			drawSelection(x, y, selection, cur, bColor);		// ve hcn o tren mau ban dau
+			y += D;										// di chuyen con tro toi vi tri tiep theo
 			gotoXY(x, y);
 			cur += 1;
 		}
 		else if (c == 13)
 		{
-			if (cur == 2) //nếu lựa chọn thoát
+			if (cur == 0) 
 			{
-				std::cout << std::endl << std::endl << std::endl;
-				exit(0);
+				system("CLS");
+				if (drawMenu2(selection, n, order)) // vao ve ham 2 
+				{
+					if (order == 1 || order == 2) {
+						return order;
+					}
+					// ve lai menu 1 neu nhu nguoi dung BACK o menu 2
+					drawSelection(x, y, selection, 0, bColor);
+					drawSelection(x, y + D, selection, 1, bColor);
+					drawSelection(x, y + D * 2, selection, 2, bColor);
+					
+				}
+				else
+				{
+					setColor(0, 7);
+					return order;
+				}
 			}
-			else if (cur == 1 && level < 5) //nếu lựa chọn chơi tiếp
-			{
-				level++; //tăng level
+			else if (cur == 2) {
+				std::cout << std::endl << std::endl;
+				exit(0); // thoat neu nguoi dung vao o THOAT
 			}
-			else if (cur == 1 && level == 5) //nếu lựa chọn restart game
-			{
-				level = 1;
-
-			}
-		}
-	}
-	setColor(0, fontColor); // set lai mau ban dau
-	std::cout << std::endl << std::endl << std::endl;
-	system("CLS");
-}
-
-// ve menu dau tien
-int drawMenu(int &order) 
-{
-	HideCursor();
-	std::vector <std::string> selection;
-	selection.resize(10);
-	selection[0] = "START NEW GAME\0";
-	selection[1] = "CONTINUE GAME\0";
-	selection[2] = "HOW TO PLAY\0";
-	selection[3] = "SAVE GAME & EXIT\0";
-	selection[4] = "BACK\0";
-	selection[5] = "Press -> to move right\0";
-	selection[6] = "Press <- to move left\0";
-	char c;
-	int x, y, cur = 0;
-	drawMenu1(x, y, selection); //vẽ lựa chọn menu 1
-	drawSelection(x, y, selection, 0, 9); //set lại ô đầu màu xanh dương
-	while (1)
-	{
-		c = getch();    // nhan vao lua chon cua nguoi dung
-		if (c == 72 && cur != 0)  // nếu gặp mũi tên đi lên và chưa chạm ô đầu tiên
-		{
-			drawSelection(x, y - D, selection, cur - 1, 9);  // ve hcn o tren mau khac
-			drawSelection(x, y, selection, cur, bColor);		// ve hcn o duoi mau ban dau
-			y -= D;										// di chuyen con tro toi vi tri tiep theo
-			gotoXY(x, y); //di chuyển tới ô được chọn
-			cur -= 1;
-		}
-		else if (c == 80 && cur != 3)	// nếu gặp mũi tên đi xuống và chưa chạm ô cuối cùng
-		{
-			drawSelection(x, y + D, selection, cur + 1, 9); // ve hcn o duoi mau khac
-			drawSelection(x, y, selection, cur, bColor);		// ve hcn o tren mau ban dau
-			y += D;										// di chuyen con tro toi vi tri tiep theo
-			gotoXY(x, y); //di chuyển tới ô được chọn 
-			cur += 1;
-		}
-		else if (c == 13) //nếu gặp phím enter
-		{
-			if (cur == 0)
-				return order;
-			if (cur == 1) //nếu tiếp tục chơi
-			{
+			else if (cur == 1) {
 				order = loadGame;
 				return order;
 			}
-			if (cur == 2)
-			{
-				system("CLS");
-				if (drawMenu2(selection)) // nếu người dùng quay về menu 1
-				{
-					// vẽ lại menu 1 
-					drawMenu1(x, y, selection);
-					cur = 0; //set lại ô lựa chọn = 0
-				}
-			}
-			else if (cur == 3)
-			{
-				std::cout << std::endl << std::endl << std::endl;
-				exit(0); // thoat neu nguoi dung vao o THOAT
-			}
 		}
 	}
-	setColor(0, 15);
+	setColor(0, 7);
 	system("CLS");
 	return order;
-}
-
-void drawMenu1(int &x, int &y, std::vector <std::string> selection)
-{
-	x = xStart; y = yStart + 3;
-	// ve cac o lua chon ban dau
-	drawSelection(x, y, selection, 0, 9); //set lại ô đầu màu xanh dương
-	drawSelection(x, y + D, selection, 1, bColor); //1 là vị trí lựa chọn trong selection
-	drawSelection(x, y + D * 2, selection, 2, bColor);
-	drawSelection(x, y + D * 3, selection, 3, bColor);
 }
 
