@@ -1,9 +1,9 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "BrickMatrix.h"
 #include <random>
 #include <ctime>
 
-void BrickMatrix::initialBrickRandom() 
+void BrickMatrix::initialBrickRandom()
 {
 	setCur(3, 10, 3);
 	int x, y = 4;
@@ -23,7 +23,7 @@ void BrickMatrix::initialBrickRandom()
 	}
 }
 
-void BrickMatrix::setCur(int r, int c, int spa) //Xet toa do cho tung vien gach
+void BrickMatrix::setCur(int r, int c, int spa) //Xét tọa độ cho từng viên gạch
 {
 	int x, y = 4;
 	row = r;
@@ -195,6 +195,7 @@ void BrickMatrix::setLvlAll(int a)
 	}
 }
 
+
 void BrickMatrix::drawBricks()
 {
 	for (int i = 0; i < row; i++)
@@ -215,21 +216,16 @@ void BrickMatrix::processTouch(CPong& Ball, int& point, vector<CBonus>& bonus)
 		for (int j = 0; j < col; j++)
 		{
 			if (Mat[i][j].getLevel() == 0)	//Neu lvl cua gach = 0 thi khong xet
-			{
 				continue;
-			}
-			if (Mat[i][j].getY() == Ball.getCurY() + 1 || Mat[i][j].getY() == Ball.getCurY() - 1)	//Bong cham mat tren hoaoac mat duoi cua gach
+			if (Mat[i][j].getY() == Ball.getCurY() + 1 || Mat[i][j].getY() == Ball.getCurY() - 1)	//Bong cham mat tren hoac mat duoi cua gach
 			{
 				if (Ball.getCurX() == Mat[i][j].getX() - brickLength / 2 - 1)	//Bong cham goc tren hoac goc duoi ben trai
 				{
 					if (Ball.getCurY() + 1 == Mat[i][j].getY())
-					{
 						Ball.changDir(UPLEFT);
-					}
 					else if (Ball.getCurY() - 1 == Mat[i][j].getY())
-					{
 						Ball.changDir(DOWNLEFT);
-					}
+
 					checkLevel(i, j, bonus);
 					if (Mat[i][j].getLevel() != 3 && Mat[i][j].getLevel() != 4)	//Cong diem khi pha gach
 						point += 100;
@@ -237,20 +233,17 @@ void BrickMatrix::processTouch(CPong& Ball, int& point, vector<CBonus>& bonus)
 					Mat[i][j].draw();
 					return;
 				}
-				for (int k = 0; k < brickLength ; k++)			//Bong cham gach
+				for (int k = 0; k < brickLength; k++)			//Bong cham gach
 				{
 					if (Ball.getCurX() == Mat[i][j].getX() - brickLength / 2 + k)
 					{
 						if (Ball.getCurY() + 1 == Mat[i][j].getY())
-						{
 							Ball.changDir((Ball.getDir() == DOWNLEFT) ? UPLEFT : UPRIGHT);
-						}
 						else if (Ball.getCurY() - 1 == Mat[i][j].getY())
-						{
 							Ball.changDir((Ball.getDir() == UPLEFT) ? DOWNLEFT : DOWNRIGHT);
-						}
+
 						checkLevel(i, j, bonus);
-						if(Mat[i][j].getLevel()!=3&& Mat[i][j].getLevel()!=4)
+						if (Mat[i][j].getLevel() != 3 && Mat[i][j].getLevel() != 4)
 							point += 100;
 						Mat[i][j].afterTouch();
 						Mat[i][j].draw();
@@ -260,13 +253,10 @@ void BrickMatrix::processTouch(CPong& Ball, int& point, vector<CBonus>& bonus)
 				if (Ball.getCurX() == Mat[i][j].getX() + brickLength / 2 + 1)	//Bong cham goc tren hoac goc duoi ben phai
 				{
 					if (Ball.getCurY() + 1 == Mat[i][j].getY())
-					{
 						Ball.changDir(UPRIGHT);
-					}
 					else if (Ball.getCurY() - 1 == Mat[i][j].getY())
-					{
 						Ball.changDir(DOWNRIGHT);
-					}
+					
 					checkLevel(i, j, bonus);
 					if (Mat[i][j].getLevel() != 3 && Mat[i][j].getLevel() != 4)
 						point += 100;
@@ -288,6 +278,17 @@ void BrickMatrix::checkLevel(int i, int j, vector<CBonus>& bonus)
 		a.setCur(Mat[i][j].getX(), Mat[i][j].getY() + 1);
 		bonus.push_back(a);
 	}
+}
+
+bool BrickMatrix::win() //hàm kiểm tra xem các viên gạch đã được phá hết chưa, nếu hết trả về true
+{
+	for (int i = 0; i < row; i++)
+		for (int j = 0; j < col; j++)
+		{
+			if (Mat[i][j].getLevel() != 0 && Mat[i][j].getLevel() != 3)
+				return false;
+		}
+	return true;
 }
 
 BrickMatrix::BrickMatrix(int r,int c)//(row,col)
