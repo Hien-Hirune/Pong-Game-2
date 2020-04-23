@@ -1,8 +1,10 @@
-#pragma once
+﻿#pragma once
+#pragma comment(lib, "winmm.lib")
 #include "pch.h"
 #include <malloc.h>
 #include <conio.h>
 #include "graphic/graphics.h"
+#include <Windows.h>
 #include "CBar.h"
 #include "CPong.h"
 #include "Point.h"'
@@ -12,52 +14,45 @@
 #include "BrickMatrix.h"
 #include "CListBonus.h"
 
-#define resetButton 'r'
-
 #define loadGameKey 10
-
 #define pauseGame 'p'
-
 #define resetLoop 'l'
-
 #define WIDTH 61
 #define HEIGHT 30
-
-
 #define barLength 17
-
+#define defaultSpeed 99
 #define speedRange 3
-#define defaultSpeed 50
-#define minSpeed 10
+#define minSpeed 7
 #define botSpeed 0.02
-#define winPoint 3
+
 class CGame
 {
 private:
 	CListBonus bonus;
 	CPong pong;
 	CBar playerOne;
-	bool quit;
 	int playerOneScore;
 	int speed;
-	int stage;
+	int stage; //màn chơi
 	BrickMatrix Mat;
+	int highscore;
 public:	
-	void upScore(CBar player); // tang diem
-	void initial(); // khoi tao
+	void initial(int); // khoi tao
 	void changeSpeed(); // doi toc do
 	void logic(); // xet tinh logic cua game
-	void run(int); // chay game
+	void run(int, int); // chay game
 	bool pause(int); // tam dung game
-	void botPlayerMove(); // cho bot chay
-	void displayScore(); // hien thi diem
-	int setBotColor(); // thay doi mau cua bot
-	void reset(); // khoi tao lai game
+	void displayScore(); // hien thi diem	
 	void unPause(); // tiep tuc choi
-	void botLevelUp(); // tang cap cho bot
-	void saveGame(int choice); // luu game
-	void loadGame(int&); // load game
-	void displayWinner(int ); // hien thi nguoi win
+
+	void botPlayerMove();
+
+	void saveGame(int); // luu game
+	void loadGame(int&, int&); // load game
+	int getHighScore() {
+		return highscore;
+	}
+	
 	CGame();
 	~CGame();
 };

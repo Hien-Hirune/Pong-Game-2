@@ -1,12 +1,13 @@
 ﻿#include "pch.h"
 #include "CGame.h"
+#include <fstream>
 
 
 // thay doi speed moi khi banh cham vao thanh choi
 void CGame::changeSpeed()
 {
 	if (speed > minSpeed) //nếu speed chưa đạt cực đại
-		speed -= speedRange; //tăng tốc cho speed (speed càng nhỏ tốc độ càng nhanh)
+		speed -= (110 - speed) / 10; //tăng tốc cho speed (speed càng nhỏ tốc độ càng nhanh)
 	else
 		speed = minSpeed; 
 }
@@ -56,7 +57,15 @@ void CGame::logic()
 	// nếu bóng chạm thanh dưới mà không chạm thanh trượt
 	if (pong.getCurY() + 1 == HEIGHT - 1)
 	{
-		if (drawLoser()) //nếu chọn restart
+		if (playerOneScore > highscore)
+		{
+			highscore = playerOneScore;
+			ofstream hs;
+			hs.open("highscore.txt");
+			hs << highscore;
+			hs.close();
+		}
+		if (drawLoser(playerOneScore)) //nếu chọn restart
 		{
 			system("cls");
 			int order = 0; // lua chon cua nguoi dung
@@ -66,7 +75,9 @@ void CGame::logic()
 			}
 		}
 		else //nếu chọn thoát
+		{
 			exit(0);
+		}
 	}		
 	
 	// thanh trai
@@ -113,8 +124,8 @@ void CGame::initial(int level)
 
 // hien thi diem tren man hinh
 void CGame::displayScore() {
-	gotoXY(WIDTH/4 - 10, HEIGHT);
-	std::cout << "Player Score: " << playerOneScore << "\t\t\t" << "Level: " << stage << std::endl;
+	gotoXY(WIDTH / 4 - 13, HEIGHT);
+	std::cout << "Player Score: " << playerOneScore << "\t Highest score: " << highscore << "\t Level: " << stage << std::endl;
 }
 
 
@@ -128,15 +139,6 @@ void CGame::unPause() {
 	pong.draw(pongChar);
 }
 
-void CGame::reset() {
-	stage = 1;
-	playerOne.reset();
-	playerOneScore = 0;
-	pong.reset();
-	pong.randomDir();
-	pong.draw(delChar);
-	speed = defaultSpeed;
-}
 
 //ham dieu khien bot
 void CGame::botPlayerMove() 
@@ -147,7 +149,6 @@ void CGame::botPlayerMove()
 			playerOne.move(playerOneLeftControl);
 		else if (playerOne.getCurX() + barLength / 2 < pong.getCurX()) 
 			playerOne.move(playerOneRightControl);
-		
 	}
 }
 
@@ -156,7 +157,7 @@ void CGame::run(int order, int level)
 {
 	system("cls");
 	if (order == loadGameKey) //nếu chọn chế độ chơi tiếp thì load lại
-		loadGame(order);
+		loadGame(order, level);
 	else //nếu không thì khởi tạo màn chơi mới
 		initial(level);
 
@@ -173,6 +174,8 @@ void CGame::run(int order, int level)
 			switch (key)
 			{
 			case resetLoop:
+				gotoXY(WIDTH / 4 - 10, HEIGHT);
+				std::cout << "                                                                              ";
 				pong.outLoop();
 				playerOneScore -= 200;
 				break;
@@ -187,15 +190,6 @@ void CGame::run(int order, int level)
 			case playerOneRightControl:
 				if (order == 1)
 					playerOne.move(playerOneRightControl);
-				break;
-			case resetButton:
-				for (int i = 0; i < 29; i++) {
-					gotoXY(65 + i, 15);
-					cout << " ";
-				}
-				pong.randomDir();
-				stage = 1;
-				start = std::chrono::system_clock::now();
 				break;
 			default:
 				break;
@@ -238,12 +232,16 @@ void CGame::run(int order, int level)
 
 		if (Mat.win()) //nếu người chơi thắng
 		{
-			drawWinner(level);
+			if (playerOneScore > highscore)
+			{
+				highscore = playerOneScore;
+			}
+			drawWinner(level, playerOneScore);
 			if (level == 1) //nếu lựa chọn restart
 			{
 				int k = 0; // lua chon cua nguoi dung
 				drawMenu(k); // ve menu
-				if (k != 3) 
+				if (k != 3)
 					run(k, level); // chay game
 			}
 			else run(order, level); //nếu lựa chọn chơi tiếp
@@ -258,7 +256,7 @@ void CGame::saveGame(int choice) {
 	freopen("input.txt", "wt", stdout);// mo file 
 	// luu cac thong tin can thiet
 	std::cout << playerOne.getCurX() << " " << playerOne.getCurY() << " " << playerOneScore << std::endl;
-	std::cout << pong.getCurX() << " " << pong.getCurY() << " " << pong.getDir() << std::endl;
+	std::cout << pong.getCurX() << " " << pong.getCurY() << " " << pong.getDir() << " " << speed << std::endl;
 	std::cout << choice << " " << stage << endl;
 	for (int i = 0; i < Mat.getRow(); i++)
 	{
@@ -272,7 +270,7 @@ void CGame::saveGame(int choice) {
 }
 
 // ham mo lai game da luu
-void CGame::loadGame(int& choice) {
+void CGame::loadGame(int& choice, int& level) {
 	freopen("input.txt", "rt", stdin);
 	int x, y;
 	std::cin >> x >> y >> playerOneScore;
@@ -282,6 +280,7 @@ void CGame::loadGame(int& choice) {
 	int direct;
 	std::cin >> direct;
 	pong.setDir(direct);
+	std::cin >> speed;
 	std::cin >> choice;
 	std::cin >> stage;
 	switch (stage)
@@ -304,6 +303,7 @@ void CGame::loadGame(int& choice) {
 			Mat.getBrick(i, j).setLevel(x);
 		}
 	}
+	level = stage;
 	freopen("CON", "rt", stdin);
 	drawBoard();
 	Mat.drawBricks();
@@ -332,9 +332,12 @@ CGame::CGame()
 {
 	srand(time(NULL));
 	speed = defaultSpeed;
-	quit = false;
 	playerOneScore = 0;
 	stage = 1;
+	freopen("highscore.txt", "rt", stdin);
+	cin >> highscore;
+	freopen("CON", "rt", stdin);
+	cin.clear();
 }
 
 CGame::~CGame()

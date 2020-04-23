@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CListBonus.h"
 
 #define bColor 4	
@@ -35,7 +35,7 @@ void CListBonus::draw()	//Ve tat ca cac bonus
 	for (int i = 0; i < List.size(); i++)
 	{
 		gotoXY(List[i].getX(), List[i].getY());
-		switch (List[i].getType())		//Xet theo loai bo nus de ve
+		switch (List[i].getType())		//Xet theo loai bonus de ve
 		{
 		case 1:
 			cout << "2";
@@ -71,7 +71,7 @@ void CListBonus::logic(CBar& bar, int& score, BrickMatrix& mat, int& speed)	//Xe
 {
 	for (int i = 0; i < List.size(); i++)
 	{
-		if (List[i].getY() + 1 == bar.getCurY())
+		if (List[i].getY() + 1 == bar.getCurY()) //kiểm tra tung độ
 		{
 			for (int j = 0; j < barLength; j++)	//Bonus cham canh tren thanh truot
 			{
@@ -89,7 +89,7 @@ void CListBonus::logic(CBar& bar, int& score, BrickMatrix& mat, int& speed)	//Xe
 				return;
 			}
 		}
-		if (List[i].getY() >= HEIGHT - 2)	//Bonus cham canh duoi
+		if (List[i].getY() >= HEIGHT - 2)	//Bonus chạm cạnh dưới mà không chạm Bar
 		{
 			List.erase(List.begin() + i);
 			drawRect(0, HEIGHT - 1, WIDTH, 1, bColor, fontColor);
@@ -98,7 +98,7 @@ void CListBonus::logic(CBar& bar, int& score, BrickMatrix& mat, int& speed)	//Xe
 	}
 }
 
-void CListBonus::checkBonus(int type, int& score, BrickMatrix& mat,int& speed)	//Kiem tra tac dung cua bo nus
+void CListBonus::checkBonus(int type, int& score, BrickMatrix& mat, int& speed)	//Kiem tra tac dung cua bonus
 {
 	switch (type)
 	{
